@@ -1,17 +1,22 @@
-import gspread
-from datetime import datetime, timedelta, date
-from oauth2client.service_account import ServiceAccountCredentials
-from secrets import JC_SPREADSHEET_URL, SERVICE_ACCOUNT_FILE, CHANNEL_ID
+import asyncio
+from datetime import date, datetime, timedelta
+
 import discord
+import gspread
 from discord.ext import tasks
+from mysecrets import CHANNEL_ID, JC_SPREADSHEET_URL, SERVICE_ACCOUNT_FILE
+from oauth2client.service_account import ServiceAccountCredentials
 from utils import seconds_until_target
+
 
 def get_journal_club_data():
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(SERVICE_ACCOUNT_FILE, scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name(
+        SERVICE_ACCOUNT_FILE, scope
+    )
     client = gspread.authorize(creds)
     sheet = client.open_by_url(JC_SPREADSHEET_URL).sheet1
     all_values = sheet.get_all_values()
@@ -39,7 +44,7 @@ def get_journal_club_data():
 def journal_club_setup(bot):
     @bot.command(name="link")
     async def get_link(ctx):
-        await ctx.send(f"Here the [QJC spreadsheet]({bot.SHEET_LINK})!")
+        await ctx.send(f"Here the [QJC spreadsheet]({JC_SPREADSHEET_URL})!")
 
     @bot.command(name="reminder")
     async def manual_reminder(ctx):

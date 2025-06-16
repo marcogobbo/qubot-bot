@@ -74,11 +74,20 @@ def journal_club_setup(bot):
 
     @bot.event
     async def on_ready():
-        await bot.wait_until_ready()
-        await asyncio.sleep(seconds_until_target(1, 14, 0))  # Tuesday 14:00
-        reminder_30min_task.start()
-        await asyncio.sleep(seconds_until_target(3, 10, 0))  # Thursday 10:00
-        weekly_reminder_task.start()
+        """
+        Called when the bot is ready. Schedules the reminder tasks.
+        """
+
+        async def start_30min_reminder():
+            await asyncio.sleep(seconds_until_target(1, 14, 00))  # Tuesday at 14:00
+            reminder_30min_task.start()
+
+        async def start_weekly_reminder():
+            await asyncio.sleep(seconds_until_target(3, 10, 00))  # Thursday at 10:00
+            weekly_reminder_task.start()
+
+        bot.loop.create_task(start_30min_reminder())
+        bot.loop.create_task(start_weekly_reminder())
 
     async def send_weekly_reminder(ctx):
         data = get_journal_club_data()

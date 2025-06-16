@@ -1,8 +1,8 @@
-import asyncio
 import subprocess
 import threading
 import time
-from typing import Dict, List
+from datetime import datetime
+from typing import Dict
 
 import numpy as np
 import pyvisa as visa
@@ -16,8 +16,6 @@ from decs_visa_tools.decs_visa_settings import (
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from mysecrets import LOGBOOK_SPREADSHEET_ID, SERVICE_ACCOUNT_FILE
-from oauth2client.service_account import ServiceAccountCredentials
-from serverapi import DecsVisaController
 
 controller = None
 monitor = None
@@ -66,9 +64,8 @@ class ParamMonitor:
         self.port = port
         self.interval = interval
         self.initial_values: Dict[str, float] = {}
-        self.measurements: Dict[str, List[float]] = {
-            param: [] for param in TRACKED_PARAMS
-        }
+        self.measurements: Dict[str, list] = {param: [] for param in TRACKED_PARAMS}
+        self.measurements["time"] = []
         self._stop_event = threading.Event()
         self._thread = None
         self._visa = None
@@ -83,6 +80,8 @@ class ParamMonitor:
         self._visa.timeout = 10000
 
     def _probe_once(self):
+        now = datetime.now()
+        self.measurements["time"].append(now.strftime("%H:%M:%S"))
         for param in PROBED_PARAMS:
             try:
                 val = float(self._visa.query(param))
@@ -144,6 +143,7 @@ def write_results_to_sheet(initials: dict, averages: dict, mins: dict):
         "get_MC_T": "U",
     }
     init_cols = {
+        "time": "B",
         "get_DR1_T": "V",
         "get_DR2_T": "W",
         "get_PT1_T1": "X",
@@ -195,6 +195,21 @@ def write_results_to_sheet(initials: dict, averages: dict, mins: dict):
             cell_ref = f"{sheet_name}!{col_letter}{first_empty_row}"
             updates.append({"range": cell_ref, "values": [[value]]})
 
+    now = datetime.now()
+    updates.append(
+        {
+            "range": f"{sheet_name}!C{first_empty_row}",
+            "values": [[now.strftime("%d/%m/%Y")]],
+        }
+    )
+
+    updates.append(
+        {
+            "range": f"{sheet_name}!D{first_empty_row}",
+            "values": [[now.strftime("%H:%M:%S")]],
+        }
+    )
+
     if updates:
         body = {"valueInputOption": "USER_ENTERED", "data": updates}
         sheet.values().batchUpdate(
@@ -223,7 +238,7 @@ def logbook_setup(bot):
                     "/home/rodolfo/Venv/poutpurri/main/qubot-bot/src/qubot/serverapi.py",
                 ]
             )
-            time.sleep(30)
+            time.sleep(10)
             monitor = ParamMonitor()
             monitor.start()
 

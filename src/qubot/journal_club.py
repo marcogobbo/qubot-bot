@@ -4,7 +4,8 @@ from datetime import date, datetime, timedelta
 import discord
 import gspread
 from discord.ext import tasks
-from mysecrets import CHANNEL_ID, JC_SPREADSHEET_URL, SERVICE_ACCOUNT_FILE
+from mysecrets import JC_CHANNEL_ID as CHANNEL_ID
+from mysecrets import JC_SPREADSHEET_URL, SERVICE_ACCOUNT_FILE
 from oauth2client.service_account import ServiceAccountCredentials
 from utils import seconds_until_target
 

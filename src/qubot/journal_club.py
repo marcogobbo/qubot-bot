@@ -1,17 +1,22 @@
-import gspread
-from datetime import datetime, timedelta, date
-from oauth2client.service_account import ServiceAccountCredentials
-from secrets import JC_SPREADSHEET_URL, SERVICE_ACCOUNT_FILE, CHANNEL_ID
+import asyncio
+from datetime import date, datetime, timedelta
+from secrets import CHANNEL_ID, JC_SPREADSHEET_URL, SERVICE_ACCOUNT_FILE
+
 import discord
+import gspread
 from discord.ext import tasks
+from oauth2client.service_account import ServiceAccountCredentials
 from utils import seconds_until_target
+
 
 def get_journal_club_data():
     scope = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(SERVICE_ACCOUNT_FILE, scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name(
+        SERVICE_ACCOUNT_FILE, scope
+    )
     client = gspread.authorize(creds)
     sheet = client.open_by_url(JC_SPREADSHEET_URL).sheet1
     all_values = sheet.get_all_values()
@@ -69,17 +74,26 @@ def journal_club_setup(bot):
 
     @bot.event
     async def on_ready():
-        await bot.wait_until_ready()
-        await asyncio.sleep(seconds_until_target(1, 14, 0))  # Tuesday 14:00
-        reminder_30min_task.start()
-        await asyncio.sleep(seconds_until_target(3, 10, 0))  # Thursday 10:00
-        weekly_reminder_task.start()
+        """
+        Called when the bot is ready. Schedules the reminder tasks.
+        """
+
+        async def start_30min_reminder():
+            await asyncio.sleep(seconds_until_target(1, 14, 00))  # Tuesday at 14:00
+            reminder_30min_task.start()
+
+        async def start_weekly_reminder():
+            await asyncio.sleep(seconds_until_target(3, 10, 00))  # Thursday at 10:00
+            weekly_reminder_task.start()
+
+        bot.loop.create_task(start_30min_reminder())
+        bot.loop.create_task(start_weekly_reminder())
 
     async def send_weekly_reminder(ctx):
         data = get_journal_club_data()
         embed = discord.Embed(
             title="Quantum Journal Club",
-            description=f"Next Tuesday, **{data['speaker']}** will host the QJC in room **{data['room']}** and on [**Zoom**]({data['zoom']}).",
+            description=f"Next Tuesday, **{data['speaker']}** will host the QJC in room **{data['room']}** and [**Online**]({data['link']}).",
             color=0x4285F4,
         )
         embed.add_field(
@@ -93,7 +107,7 @@ def journal_club_setup(bot):
         data = get_journal_club_data()
         embed = discord.Embed(
             title="Quantum Journal Club",
-            description=f"In 30 minutes, **{data['speaker']}** will host the QJC in room **{data['room']}** and on [**Zoom**]({data['zoom']}).",
+            description=f"In 30 minutes, **{data['speaker']}** will host the QJC in room **{data['room']}** and [**Online**]({data['link']}).",
             color=0x4285F4,
         )
         embed.add_field(

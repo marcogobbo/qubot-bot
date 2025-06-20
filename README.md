@@ -14,7 +14,7 @@ qu_bot/
 ├── __main__.py           # Entry point
 ├── journal_club.py       # QJC-specific logic (commands, reminders)
 ├── utils.py              # Shared helpers (e.g. time calculations)
-└── secrets.py            # API keys and config (excluded from git)
+└── mysecrets.py            # API keys and config (excluded from git)
 ```
 
 ## ⚙️ Setup
@@ -25,11 +25,11 @@ qu_bot/
    poetry install
    ```
 
-2. **Add `secrets.py`**:
+2. **Add `mysecrets.py`**:
 
    ```python
    DISCORD_TOKEN = "your_token"
-   CHANNEL_ID = 123456789012345678
+   JC_CHANNEL_ID = 123456789012345678
    JC_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/..."
    SERVICE_ACCOUNT_FILE = "path/to/service_account.json"
    ```
@@ -39,7 +39,7 @@ qu_bot/
 4. **Run the bot**:
 
    ```bash
-   python -m qu_bot
+   python -m qubot
    ```
 
 ## ➕ Extend Qu-bot

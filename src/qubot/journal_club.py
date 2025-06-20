@@ -1,10 +1,10 @@
 import asyncio
 from datetime import date, datetime, timedelta
-from secrets import CHANNEL_ID, JC_SPREADSHEET_URL, SERVICE_ACCOUNT_FILE
 
 import discord
 import gspread
 from discord.ext import tasks
+from mysecrets import JC_CHANNEL_ID, JC_SPREADSHEET_URL, SERVICE_ACCOUNT_FILE
 from oauth2client.service_account import ServiceAccountCredentials
 from utils import seconds_until_target
 
@@ -52,7 +52,7 @@ def journal_club_setup(bot):
 
     @tasks.loop(hours=168)
     async def weekly_reminder_task():
-        channel = bot.get_channel(CHANNEL_ID)
+        channel = bot.get_channel(JC_CHANNEL_ID)
 
         class DummyContext:
             async def send(self, *args, **kwargs):
@@ -63,7 +63,7 @@ def journal_club_setup(bot):
 
     @tasks.loop(hours=168)
     async def reminder_30min_task():
-        channel = bot.get_channel(CHANNEL_ID)
+        channel = bot.get_channel(JC_CHANNEL_ID)
 
         class DummyContext:
             async def send(self, *args, **kwargs):

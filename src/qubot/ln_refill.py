@@ -41,7 +41,7 @@ def ln_refill_setup(bot):
         """
 
         async def start_weekly_reminder():
-            await asyncio.sleep(seconds_until_target(4, 10, 00))  # Wednesday at 10:00
+            await asyncio.sleep(seconds_until_target(2, 10, 00))  # Wednesday at 10:00
             weekly_reminder_task.start()
 
         bot.loop.create_task(start_weekly_reminder())

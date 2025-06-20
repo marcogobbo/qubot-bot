@@ -22,6 +22,7 @@ def get_journal_club_data():
     all_values = sheet.get_all_values()
     headers = list(map(str.lower, all_values[0]))
     data_rows = all_values[1:]
+    link = all_values[1][6] if len(all_values[1]) > 6 else ""
 
     today = date.today()
     if today.weekday() == 1:
@@ -34,7 +35,9 @@ def get_journal_club_data():
         try:
             row_date = datetime.strptime(row[0], "%d/%m/%Y").date()
             if row_date == target_tuesday:
-                return dict(zip(headers, row))
+                result = dict(zip(headers, row))
+                result["link"] = link
+                return result
         except ValueError:
             continue
 
@@ -93,7 +96,7 @@ def journal_club_setup(bot):
         data = get_journal_club_data()
         embed = discord.Embed(
             title="Quantum Journal Club",
-            description=f"Next Tuesday, **{data['speaker']}** will host the QJC in room **{data['room']}** and [**Online**]({data['link']}).",
+            description=f"Next Tuesday, **{data['speaker']}** will host the QJC in room **{data['room']}** and [**Zoom**]({data['link']}).",
             color=0x4285F4,
         )
         embed.add_field(

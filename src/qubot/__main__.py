@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
-
-from ln_refill import ln_refill_setup
+from elsa import cryo_monitor_setup
 from journal_club import journal_club_setup
+from ln_refill import ln_refill_setup
 from mysecrets import DISCORD_TOKEN
 
 intents = discord.Intents.default()
@@ -12,6 +12,7 @@ bot = commands.Bot(command_prefix="/", intents=intents)
 # Setup journal club commands and tasks
 journal_club_setup(bot)
 ln_refill_setup(bot)
+cryo_monitor_setup(bot)
 
 if __name__ == "__main__":
     bot.run(DISCORD_TOKEN)

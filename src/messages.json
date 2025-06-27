@@ -1,0 +1,66 @@
+{
+    "Elsa": {
+        "content": [
+            {
+                "time": {
+                    "day": 3,
+                    "hour": 10,
+                    "minute": 0
+                },
+                "title": "📢 **LN cold trap refill**",
+                "description": "Refill **Elsa**'s cold trap with LN! ⚠️​",
+                "button": {
+                    "label": "Refill LN Trap",
+                    "response": "{user} refilled **Elsa**'s cold trap with LN! ✅"
+                }
+            }
+        ]
+    },
+
+    "JournalClub":
+    {
+        "content": [
+            {
+                "time": {
+                    "day": 3,
+                    "hour": 14,
+                    "minute": 0
+                },
+                "title": "📢 **Quantum Journal Club**",
+                "description": "Next Tuesday, **{speaker}** will host the [**QJC**]({spreadsheet}) in room **{room}** and on [**Zoom**]({link}).",
+                "add_field": {
+                    "name": "Paper",
+                    "value": "[{paper}]({doi})\n\nDon't forget to read the paper beforehand! 🤓"
+                }
+            },
+            {
+                "time": {
+                    "day": 2,
+                    "hour": 14,
+                    "minute": 0
+                },
+                "title": "📢 **Quantum Journal Club**",
+                "description": "In 30 minutes, **{speaker}** will host the [**QJC**]({spreadsheet}) in room **{room}** and on [**Zoom**]({link}).",
+                "add_field": {
+                    "name": "Paper",
+                    "value": "[{paper}]({doi})\n\nMake sure to at least check out the abstract! 👀"
+                }
+            }
+        ]
+    },
+
+    "General":
+    {
+        "content": [
+            {
+                "time": {
+                    "day": 1,
+                    "hour": 9,
+                    "minute": 0
+                },
+                "title": "📢 **Monday Meeting**",
+                "description": "Good morning everyone! ☀️​ The **Monday Meeting** starts in 15 minutes! ☕\nCan't make it in person? Join on [**Zoom**]({link})! And don't forget to take the [**minutes**]({minutes})! 📝"
+            }
+        ]
+    }
+}

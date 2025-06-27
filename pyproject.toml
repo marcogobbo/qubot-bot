@@ -1,17 +1,15 @@
-[project]
+[tool.poetry]
 name = "qubot"
-version = "0.1.0"
+version = "1.0.0"
 description = "Main bot for the QISMIB Discord server"
-authors = [
-    {name = "Marco"}
-]
-license = {text = "MIT"}
+authors = ["Marco Gobbo, Rodolfo Carobene"]
+license = "Apache License 2.0"
 readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-]
+
+[tool.poetry.dependencies]
+python = "^3.11"
 
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

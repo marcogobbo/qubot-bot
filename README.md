@@ -1,20 +1,37 @@
-# Qu-bot
+# QuBot
 
-A modular Discord bot for managing academic and lab-related tasks. It currently supports the **Quantum Journal Club (QJC)** and is designed for easy extension by adding new modules.
+A modular Discord bot for managing academic and lab-related tasks. Currently, it supports:
+
+- Quantum Journal Club (QJC) announcements  
+- General reminders (i.e. Monday Meetings)
+- Reminders for refilling Elsa's cold trap dewar  
+
+It is designed to be easily extensible by adding new modules (cogs).
+
+---
 
 ## 🧠 Features
 
-- ⏰ Scheduled reminders (e.g. for QJC meetings)
-- 🔗 Slash commands for quick info access
+- ⏰ Scheduled reminders (e.g., for QJC meetings)
+- 📝 Easy integration with Google Sheets and Docs
+- 🧩 Modular cog-based architecture
+
+---
 
 ## 📁 Project Structure
 
-```
-qu_bot/
-├── __main__.py           # Entry point
-├── journal_club.py       # QJC-specific logic (commands, reminders)
-├── utils.py              # Shared helpers (e.g. time calculations)
-└── mysecrets.py            # API keys and config (excluded from git)
+```text
+qubot/
+├── main.py                # Entry point of the bot
+├── utils.py               # Utility functions
+├── messages.json          # Templates for messages to send
+├── service_account.json   # Google Cloud service account credentials
+├── .env                   # Environment variables (tokens, channel IDs, URLs, etc.)
+├── cogs/
+│   ├── announcements.py   # Base class for announcement-related cogs
+│   ├── elsa.py            # Cog for Elsa's channel reminders
+│   ├── general.py         # Cog for the general channel reminders
+│   └── journal_club.py    # Cog for Quantum Journal Club announcements
 ```
 
 ## ⚙️ Setup
@@ -25,28 +42,37 @@ qu_bot/
    poetry install
    ```
 
-2. **Add `mysecrets.py`**:
+2. **Add a ```.env``` file in the root directory with the following variables**:
 
-   ```python
-   DISCORD_TOKEN = "your_token"
-   JC_CHANNEL_ID = 123456789012345678
-   JC_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/..."
-   SERVICE_ACCOUNT_FILE = "path/to/service_account.json"
+   ```env
+   DISCORD_TOKEN="your_token"
+   GENERAL_CHANNEL="123456789123456789"
+   ELSA_CHANNEL="123456789123456789"
+   JOURNAL_CLUB_CHANNEL="123456789123456789"
+   JOURNAL_CLUB_SPREADSHEET_URL="https://docs.google.com/spreadsheets/d/abcdfghijklmnopqrstuvwxyz"
+   MONDAY_MEETING_ZOOM_URL="https://zoom.us/j/123456789"
+   MONDAY_MEETING_MINUTES_URL="https://docs.google.com/document/d/abcdfghijklmnopqrstuvwxyz"
+   SERVICE_ACCOUNT_JSON="service_account.json"
+   MESSAGES_JSON="messages.json"
    ```
 
-3. **Share the spreadsheet** with your service account email.
+3. **Add your ```service_account.json``` file**:<br>
+   This file is downloaded from Google Cloud and is required to access Google Sheets and Docs.
 
 4. **Run the bot**:
-
    ```bash
-   python -m qubot
+   python qubot.py
    ```
 
-## ➕ Extend Qu-bot
+## ➕ Extending QuBot
+To add new functionality:
 
-To add functionality:
+- Create a new cog (e.g., ```my_cog.py```) in the ```cogs/``` directory.
 
-- Create a new module (e.g. `my_task.py`)
-- Register new `@bot.command()`s or scheduled tasks
+- Load it by modifying the QuBot class to include:
 
-Minimal changes needed in `__main__.py`.
+   ```python
+    await self.load_extension("cogs.my_cog")
+   ```
+
+Minimal changes are needed in ```main.py```, thanks to the modular architecture.

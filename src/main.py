@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-TOKEN: str = getenv("BOT_TOKEN")
+TOKEN: str = getenv("DISCORD_TOKEN")
 intents: Intents = Intents.all()
 
 

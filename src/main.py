@@ -34,4 +34,4 @@ async def on_ready() -> None:
 if TOKEN:
     qubot.run(TOKEN)
 else:
-    raise EnvironmentError("BOT_TOKEN not found in the .env file.")
+    raise EnvironmentError("DISCORD_TOKEN not found in the .env file.")

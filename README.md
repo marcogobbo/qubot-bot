@@ -67,9 +67,9 @@ qubot/
 ## ➕ Extending QuBot
 To add new functionality:
 
-    Create a new cog (e.g., ```my_cog.py```) in the ```cogs/``` directory.
+- Create a new cog (e.g., ```my_cog.py```) in the ```cogs/``` directory.
 
-    Load it by modifying the QuBot class to include:
+- Load it by modifying the QuBot class to include:
 
    ```python
     await self.load_extension("cogs.my_cog")

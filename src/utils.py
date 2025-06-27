@@ -15,11 +15,16 @@ def load_json(filename: str) -> dict[str, Any]:
     return data
 
 
-def load_data(service_account_path: str, spreadsheet_url: str) -> DataFrame:
+def load_data(
+    service_account_path: str, spreadsheet_url: str, sheet: int | str = 0
+) -> DataFrame:
     """Load data from a Google Sheet into a DataFrame."""
     gc: Client = service_account(filename=service_account_path)
     sh: Spreadsheet = gc.open_by_url(spreadsheet_url)
-    worksheet: Worksheet = sh.worksheet("Sheet1")
+    if isinstance(sheet, int):
+        worksheet: Worksheet = sh.get_worksheet(sheet)
+    else:
+        worksheet: Worksheet = sh.worksheet(sheet)
     data: list[dict[str, Any]] = worksheet.get_all_records()
     df: DataFrame = DataFrame(data)
     df["spreadsheet"] = spreadsheet_url

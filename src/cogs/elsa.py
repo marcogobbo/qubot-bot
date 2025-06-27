@@ -1,22 +1,22 @@
 """Elsa class cog for QuBot."""
 
 from os import getenv
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
 
 from discord import ButtonStyle, Interaction
 from discord.ext.commands import Bot
 from discord.ui import Button, View
 from dotenv import load_dotenv
 
-from .announcements import Announcements
+from cogs.announcements import Announcements
 
 
 class Elsa(Announcements):
     """Cog for scheduling and sending announcements about Elsa."""
 
     def prepare_announcement(
-        self, content: Dict[str, Any]
-    ) -> Tuple[Dict[str, int], Dict[str, str], Optional[View]]:
+        self, content: dict[str, Any]
+    ) -> tuple[dict[str, int], dict[str, str], Optional[View]]:
         """Format message content by filling placeholders with data and adding buttons."""
         return (
             content["time"],
@@ -31,11 +31,11 @@ class Elsa(Announcements):
 class RefillButton(View):
     """Custom Discord UI View for the refill button."""
 
-    def __init__(self, button_info: Dict[str, Any]) -> None:
+    def __init__(self, button_info: dict[str, Any]) -> None:
         """Initialize the refill button view."""
         super().__init__()
         self.button_clicked: bool = False
-        self.button_info: Dict[str, Any] = button_info
+        self.button_info: dict[str, Any] = button_info
 
         button = Button(
             label=button_info["label"],

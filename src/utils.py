@@ -2,16 +2,16 @@
 
 from datetime import datetime
 from json import load
-from typing import Any, Dict
+from typing import Any
 
 from gspread import Client, Spreadsheet, Worksheet, service_account
 from pandas import DataFrame, to_datetime
 
 
-def load_json(filename: str) -> Dict[str, Any]:
+def load_json(filename: str) -> dict[str, Any]:
     """Load JSON data from a file."""
     with open(filename, "r", encoding="utf-8") as f:
-        data: Dict[str, Any] = load(f)
+        data: dict[str, Any] = load(f)
     return data
 
 
@@ -26,7 +26,7 @@ def load_data(service_account_path: str, spreadsheet_url: str) -> DataFrame:
     return df
 
 
-def parse_data(df: DataFrame) -> Dict[str, Any]:
+def parse_data(df: DataFrame) -> dict[str, Any]:
     """Parse the DataFrame and return the next upcoming entry as a dictionary."""
     df["datetime"] = to_datetime(df["date"] + " " + df["time"], dayfirst=True)
     df_next = df[df["datetime"] > datetime.now()]

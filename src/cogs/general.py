@@ -1,13 +1,13 @@
 """General class cog for QuBot."""
 
 from os import getenv
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
 
 from discord.ext.commands import Bot
 from discord.ui import View
 from dotenv import load_dotenv
 
-from .announcements import Announcements
+from cogs.announcements import Announcements
 
 
 class General(Announcements):
@@ -18,15 +18,15 @@ class General(Announcements):
         bot: Bot,
         channel_id: int,
         messages_path: str,
-        data: Dict[str, str],
+        data: dict[str, str],
     ) -> None:
         """Initialize the General cog."""
-        self.data: Dict[str, str] = data
+        self.data: dict[str, str] = data
         super().__init__(bot, channel_id, messages_path)
 
     def prepare_announcement(
-        self, content: Dict[str, Any]
-    ) -> Tuple[Dict[str, int], Dict[str, str], Optional[View]]:
+        self, content: dict[str, Any]
+    ) -> tuple[dict[str, int], dict[str, str], Optional[View]]:
         """Format message content by filling placeholders with data."""
         return (
             content["time"],
@@ -44,7 +44,7 @@ async def setup(bot: Bot) -> None:
 
     channel_id: int = int(getenv("GENERAL_CHANNEL"))
     messages_path: str = getenv("MESSAGES_JSON")
-    data: Dict[str, str] = {
+    data: dict[str, str] = {
         "link": getenv("MONDAY_MEETING_ZOOM_URL"),
         "minutes": getenv("MONDAY_MEETING_MINUTES_URL"),
     }

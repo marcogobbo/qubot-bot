@@ -2,7 +2,7 @@
 
 from abc import ABC, ABCMeta, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
 from zoneinfo import ZoneInfo
 
 from discord import Embed, TextChannel
@@ -27,7 +27,7 @@ class Announcements(Cog, ABC, metaclass=CombinedMeta):
     def __init__(self, bot: Bot, channel_id: int, messages_path: str) -> None:
         self.bot: Bot = bot
         self.channel_id: int = channel_id
-        self.messages: Dict[str, Any] = load_json(messages_path)
+        self.messages: dict[str, Any] = load_json(messages_path)
         self.message_key: str = self.__class__.__name__
 
         self.announcement: Loop = loop(minutes=1)(self._announce)
@@ -42,7 +42,7 @@ class Announcements(Cog, ABC, metaclass=CombinedMeta):
         title: str,
         description: str,
         color: int = COLOR_BLUE,
-        add_field: Optional[Dict[str, str]] = None,
+        add_field: Optional[dict[str, str]] = None,
         view: Optional[View] = None,
     ) -> None:
         """Send an embedded announcement message to a text channel."""
@@ -65,8 +65,8 @@ class Announcements(Cog, ABC, metaclass=CombinedMeta):
 
     @abstractmethod
     def prepare_announcement(
-        self, content: Dict[str, Any]
-    ) -> Tuple[Dict[str, int], Dict[str, str], Optional[View]]:
+        self, content: dict[str, Any]
+    ) -> tuple[dict[str, int], dict[str, str], Optional[View]]:
         """Prepare announcement data and optional view."""
 
     async def _announce(self) -> None:

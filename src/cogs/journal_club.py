@@ -1,15 +1,14 @@
 """JournalClub class cog for QuBot."""
 
 from os import getenv
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Optional
 
 from discord.ext.commands import Bot
 from discord.ui import View
 from dotenv import load_dotenv
 
+from cogs.announcements import Announcements
 from utils import load_data, parse_data
-
-from .announcements import Announcements
 
 
 class JournalClub(Announcements):
@@ -29,10 +28,10 @@ class JournalClub(Announcements):
         super().__init__(bot, channel_id, messages_path)
 
     def prepare_announcement(
-        self, content: Dict[str, Any]
-    ) -> Tuple[Dict[str, int], Dict[str, str], Optional[View]]:
+        self, content: dict[str, Any]
+    ) -> tuple[dict[str, int], dict[str, str], Optional[View]]:
         """Format message content by filling placeholders with data."""
-        data: Dict[str, str] = parse_data(
+        data: dict[str, str] = parse_data(
             load_data(self.service_account_path, self.spreadsheet_url)
         )
         return (

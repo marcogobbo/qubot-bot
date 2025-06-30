@@ -1,0 +1,32 @@
+{
+    "general": {
+        "monday_meeting": {
+            "day": 0,
+            "hour": 9,
+            "minute": 0
+        }
+    },
+    "elsa": {
+        "report": {
+            "hour": 9,
+            "minute": 30
+        },
+        "ln_refill": {
+            "day": 2,
+            "hour": 10,
+            "minute": 0
+        }
+    },
+    "journal_club": {
+        "today_reminder": {
+            "day": 1,
+            "hour": 14,
+            "minute": 0
+        },
+        "weekly_reminder": {
+            "day": 3,
+            "hour": 10,
+            "minute": 0
+        }
+    }
+}

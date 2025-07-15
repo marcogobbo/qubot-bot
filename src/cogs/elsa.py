@@ -31,7 +31,7 @@ from dataclasses import dataclass
 from os import getenv
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import ButtonStyle, Embed, Interaction
+from discord import ButtonStyle, Embed, Interaction, Thread
 from discord.ext.commands import Bot, Cog, command
 from discord.ui import Button, View
 from dotenv import load_dotenv
@@ -48,17 +48,16 @@ from utils.utils import load_json
 # Load environment from the .env file
 load_dotenv()
 
-# Discord channel ID where Elsa reports and notifications are sent
-ELSA_CHANNEL_ID = int(getenv("ELSA_CHANNEL_ID"))
-"""int: #elsa channel ID for Elsa reports and notifications.
+# Discord thread ID where Elsa reports and notifications are sent
+ELSA_STATUS_THREAD_ID = int(getenv("ELSA_STATUS_THREAD_ID"))
+"""int: #elsa Status thread ID for Elsa reports and notifications.
 
-This channel is used for automated temperature reports, system status updates,
+This thread is used for automated temperature reports, system status updates,
 and LN cold trap refill reminders. Must be set in the .env file.
 
 Raises:
-    ValueError: If ELSA_CHANNEL_ID is not set or invalid.
+    ValueError: If ELSA_STATUS_THREAD_ID is not set or invalid.
 """
-
 # Elsa system URLs from the .env file for security
 ELSA_CONTROL_PANEL_URL = getenv("ELSA_CONTROL_PANEL_URL")
 """str: URL for Elsa control panel.
@@ -256,25 +255,29 @@ class Elsa(Cog):
             - Formats data into a Discord embed
             - Logs successful report generation
         """
-        # Verify command is executed in the correct channel
-        if ctx.channel.id == ELSA_CHANNEL_ID:
-            # Gather instrument data
-            state, temps = await self.get_data()
-            # Create formatted embed
-            embed = self.build_embed(state, temps)
-            # Send the report
-            await ctx.send(embed=embed)
-            logging.info("Sent report.")
+        await self.bot.wait_until_ready()
+
+        if ctx.channel.id != ELSA_STATUS_THREAD_ID:
+            logging.warning("Report command was executed in the wrong channel.")
+            return
+
+        thread = await self.fetch_thread(ELSA_STATUS_THREAD_ID)
+
+        state, temps = await self.get_data()
+        embed = self.build_embed(state, temps)
+
+        await thread.send(embed=embed)
+        logging.info("Sent requested report.")
 
     # =============================================================================
     # SCHEDULED TASKS
     # =============================================================================
 
     async def send_report(self):
-        """Send automated Elsa status report to the #elsa channel.
+        """Send automated Elsa status report to the #elsa Status thread.
 
         Scheduled task that gathers current instrument data and sends a formatted
-        report to the #elsa channel. Includes system state and all temperature
+        report to the #elsa Status thread. Includes system state and all temperature
         readings with proper error handling.
 
         Raises:
@@ -288,16 +291,16 @@ class Elsa(Cog):
         """
         await self.bot.wait_until_ready()
 
-        # Get the #elsa channel
-        channel = self.bot.get_channel(ELSA_CHANNEL_ID)
-        if channel is None:
-            logging.warning("General channel not found.")
+        thread = await self.fetch_thread(ELSA_STATUS_THREAD_ID)
+
+        state, temps = await self.get_data()
+        if state == "IDLE":
+            logging.info("Refrigerator is in the Idle state.")
             return
 
-        # Gather instrument data and send report
-        state, temps = await self.get_data()
         embed = self.build_embed(state, temps)
-        await channel.send(embed=embed)
+
+        await thread.send(embed=embed)
         logging.info("Sent scheduled report.")
 
     async def send_ln_refill(self):
@@ -317,21 +320,14 @@ class Elsa(Cog):
             - Logs successful reminder sending for monitoring
             - Handles missing channel gracefully with warning log
         """
-        await self.bot.wait_until_ready()
+        thread = await self.fetch_thread(ELSA_STATUS_THREAD_ID)
 
-        # Get the #elsa channel
-        channel = self.bot.get_channel(ELSA_CHANNEL_ID)
-        if channel is None:
-            logging.warning("General channel not found.")
-            return
-
-        # Create and send refill reminder with interactive button
         embed = Embed(
             title="📢 **LN cold trap refill**",
             description="Refill **Elsa**'s cold trap with LN! ⚠️",
             color=COLOR_BLUE,
         )
-        await channel.send(
+        await thread.send(
             embed=embed,
             view=RefillButton(),
         )
@@ -373,9 +369,9 @@ class Elsa(Cog):
             await instrument.connect()
         except ConnectionError as e:
             # Notify #elsa channel of connection failure
-            channel = self.bot.get_channel(ELSA_CHANNEL_ID)
+            thread = await self.fetch_thread(ELSA_STATUS_THREAD_ID)
             msg = f"Failed to query Elsa: {type(e).__name__}: {e}"
-            await channel.send(msg)
+            await thread.send(msg)
             logging.error(msg)
 
         # Query system state
@@ -486,6 +482,21 @@ class Elsa(Cog):
         )
 
         return embed
+
+    async def fetch_thread(self, thread_id) -> Thread | None:
+        thread = self.bot.get_channel(thread_id)
+        if thread is None:
+            logging.warning("Thread ID %s not found.", thread_id)
+            return None
+
+        if isinstance(thread, Thread):
+            me = thread.guild.me
+            if me.id not in thread.members:
+                await thread.join()
+
+        logging.info("Thread ID %s joined.", thread.id)
+
+        return thread
 
 
 # =============================================================================

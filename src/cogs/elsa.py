@@ -419,6 +419,8 @@ class Elsa(Cog):
             - Values >= 1.0 K are displayed in Kelvin (K)
             - Both formats use 2 decimal places for consistency
         """
+        if value is None:
+            return "N/A"  # or "Unknown", "" etc.
         if value < 1.0:
             # Convert to millikelvin for small values
             return f"{value * 1000:.2f} mK"

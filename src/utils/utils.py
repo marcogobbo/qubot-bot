@@ -1,11 +1,42 @@
 """Utility functions"""
 
+from dataclasses import dataclass
 from datetime import datetime
 from json import load
-from typing import Any
+from typing import Any, Optional
+from zoneinfo import ZoneInfo
 
+from apscheduler.triggers.cron import CronTrigger
 from gspread import Client, Spreadsheet, Worksheet, service_account
 from pandas import DataFrame, to_datetime
+
+from utils.constants import ZONE_INFO
+
+
+@dataclass
+class ScheduledTime:
+    day: Optional[int] = None
+    hour: int = 0
+    minute: int = 0
+    timezone: ZoneInfo = ZONE_INFO
+
+    def __post_init__(self):
+        """Validation"""
+        if self.day is not None and not 0 <= self.day <= 6:
+            raise ValueError("day must be between 0-6 or None")
+        if not 0 <= self.hour <= 23:
+            raise ValueError("hour must be between 0-23")
+        if not 0 <= self.minute <= 59:
+            raise ValueError("minute must be between 0-59")
+
+    def to_cron_trigger(self) -> CronTrigger:
+        """Convert in to trigger APScheduler"""
+        return CronTrigger(
+            day_of_week=self.day,
+            hour=self.hour,
+            minute=self.minute,
+            timezone=self.timezone,
+        )
 
 
 def load_json(filename: str) -> dict[str, Any]:

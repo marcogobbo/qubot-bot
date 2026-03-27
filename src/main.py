@@ -117,7 +117,7 @@ class QuBot(commands.Bot):
 # =============================================================================
 
 # Create the main bot instance with slash command support
-qubot: QuBot = QuBot(command_prefix="/", intents=intents)
+qubot: QuBot = QuBot(command_prefix="/", intents=intents, help_command=None)
 
 # =============================================================================
 # EVENT HANDLERS

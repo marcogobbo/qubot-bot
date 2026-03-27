@@ -4,7 +4,7 @@ from os import getenv
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord import ButtonStyle, Embed, Interaction, Thread
-from discord.ext.commands import Bot, Cog, command
+from discord.ext.commands import Bot, Cog, DefaultHelpCommand, command
 from discord.ui import Button, View
 from dotenv import load_dotenv
 from qtics import Proteox
@@ -528,6 +528,57 @@ class ProteoxCog(Cog):
             lines.append(f"{prefix} **{label}** → {suggestion}")
 
         return "\n".join(lines)
+
+    @command(name="help")
+    async def help_command(self, ctx):
+        """
+        Show available Proteox bot commands.
+        """
+        await self.bot.wait_until_ready()
+
+        embed = Embed(
+            title="🤖 **Proteox Bot Commands**",
+            description="Available commands for cryostat monitoring and state diagnostics.",
+            color=COLOR_BLUE,
+        )
+
+        embed.add_field(
+            name="**Monitoring**",
+            value=(
+                "`/report`\n"
+                "Send a full cryostat report in the current status thread.\n\n"
+                "`/recognized`\n"
+                "Check whether the cryostat is currently in a recognized state.\n\n"
+                "`/recognizedstates`\n"
+                "List all available recognized states."
+            ),
+            inline=False,
+        )
+
+        embed.add_field(
+            name="**State guidance**",
+            value=(
+                "`/howto`\n"
+                "Suggest how to reach the closest recognized state.\n\n"
+                "`/howto <state name>`\n"
+                "Suggest how to reach a specific recognized state.\n"
+                "Example: `!howto Circulating`\n"
+                "Example: `!howto Circulating Compressor Bypassed`"
+            ),
+            inline=False,
+        )
+
+        embed.add_field(
+            name="**Notes**",
+            value=(
+                "- These commands should be used in the Proteox status threads.\n"
+                "- Recognized-state commands use the cryostat truth-table logic from the driver."
+            ),
+            inline=False,
+        )
+
+        await ctx.send(embed=embed)
+        logging.info("Sent Proteox help command list.")
 
 
 class RefillButton(View):

@@ -562,8 +562,8 @@ class ProteoxCog(Cog):
                 "Suggest how to reach the closest recognized state.\n\n"
                 "`/howto <state name>`\n"
                 "Suggest how to reach a specific recognized state.\n"
-                "Example: `!howto Circulating`\n"
-                "Example: `!howto Circulating Compressor Bypassed`"
+                "Example: `/howto Circulating`\n"
+                "Example: `/howto Circulating Compressor Bypassed`"
             ),
             inline=False,
         )

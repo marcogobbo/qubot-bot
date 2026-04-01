@@ -110,6 +110,11 @@ class ProteoxCog(Cog):
             dr = "olaf"
 
         state, data = await self.get_data(dr)
+        if state is None:
+            logging.info(f"{dr.title()} is in LOCAL mode.")
+            await thread.send("Cryostat is in LOCAL mode.")
+            return
+
         embed = self.build_embed(dr, state, data)
 
         await thread.send(embed=embed)
@@ -123,7 +128,11 @@ class ProteoxCog(Cog):
 
             if state == "IDLE":
                 logging.info(f"{dr.title()} is in the Idle state.")
-                continue
+                return
+            if state is None:
+                logging.info(f"{dr.title()} is in LOCAL mode.")
+                await thread.send("Cryostat is in LOCAL mode.")
+                return
 
             embed = self.build_embed(dr, state, data)
 
@@ -135,7 +144,7 @@ class ProteoxCog(Cog):
             thread = await self.fetch_thread(DR[dr]["thread_id"])
             state, _ = await self.get_data(dr)
 
-            if state == "IDLE":
+            if state in ("IDLE", "WARMPING UP"):
                 logging.info(f"{dr.title()} is in the Idle state.")
                 break
 
@@ -153,7 +162,7 @@ class ProteoxCog(Cog):
     async def get_data(self, dr):
 
         instrument = Proteox(url=DR[dr]["wamp_url"])
-
+        immediate_return = False
         try:
             await instrument.connect()
         except ConnectionError as e:
@@ -161,6 +170,12 @@ class ProteoxCog(Cog):
             msg = f"Failed to query {dr.title()}: {type(e).__name__}: {e}"
             await thread.send(msg)
             logging.error(msg)
+        finally:
+            if instrument.is_in_remote():
+                immediate_return = True
+
+        if immediate_return:
+            return None, (None, None, None, None)
 
         state = await instrument.get_state()
 

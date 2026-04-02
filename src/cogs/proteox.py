@@ -110,7 +110,7 @@ class ProteoxCog(Cog):
             dr = "olaf"
 
         state, data = await self.get_data(dr)
-        if state is None:
+        if state is None or "None" in state:
             logging.info(f"{dr.title()} is in LOCAL mode.")
             await thread.send("Cryostat is in LOCAL mode.")
             return
@@ -129,7 +129,7 @@ class ProteoxCog(Cog):
             if state == "IDLE":
                 logging.info(f"{dr.title()} is in the Idle state.")
                 return
-            if state is None:
+            if state is None or "None" in state:
                 logging.info(f"{dr.title()} is in LOCAL mode.")
                 await thread.send("Cryostat is in LOCAL mode.")
                 return

@@ -170,12 +170,6 @@ class ProteoxCog(Cog):
             msg = f"Failed to query {dr.title()}: {type(e).__name__}: {e}"
             await thread.send(msg)
             logging.error(msg)
-        finally:
-            if instrument.is_in_remote():
-                immediate_return = True
-
-        if immediate_return:
-            return None, (None, None, None, None)
 
         state = await instrument.get_state()
 

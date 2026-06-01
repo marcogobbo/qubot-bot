@@ -1,0 +1,11 @@
+services:
+  qubot:
+    build: .
+    container_name: qubot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Edit YAML on the host and restart the container to apply.
+      - ./config:/app/config:ro
+    # Logs go to stdout — `docker logs -f qubot` to tail.

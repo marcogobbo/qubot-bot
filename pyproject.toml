@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "qubot"
+version = "0.1.0"
+description = "Discord bot for monitoring Proteox dilution refrigerators (Elsa, Anna, Olaf)."
+authors = ["BiQuTe"]
+readme = "README.md"
+packages = [{ include = "qubot", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+"discord.py" = "^2.4.0"
+certifi = ">=2024.0"
+pydantic = "^2.7"
+pydantic-settings = "^2.3"
+python-dotenv = "^1.0"
+pyyaml = "^6.0"
+qtics = "^0.0.6"
+h5py = ">=3.10"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+pytest-asyncio = "^0.23"
+ruff = "^0.5"
+
+[tool.poetry.scripts]
+qubot = "qubot.main:run"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

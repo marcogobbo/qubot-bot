@@ -1,0 +1,29 @@
+display_name: "ELSA"
+color: 0x5DADE2
+mixing_chamber_key: MC_T
+pt2_key: PT2_T1
+
+temperatures:
+  - { uri_key: PT1_T1, label: "Pulse-tube 1", quantity: temperature, precision: 2 }
+  - { uri_key: PT2_T1, label: "Pulse-tube 2", quantity: temperature, precision: 2 }
+  - { uri_key: STILL_T, label: "Still", quantity: temperature, precision: 2 }
+  - { uri_key: CP_T, label: "Cold plate", quantity: temperature, precision: 2 }
+  - { uri_key: MC_T, label: "Mixing chamber", quantity: temperature, precision: 2 }
+
+pressures:
+  - { uri_key: OVC_P, label: "OVC", quantity: pressure, precision: 2 }
+  - { uri_key: P1_P, label: "Dump", quantity: pressure, precision: 2 }
+  - { uri_key: P2_P, label: "Still", quantity: pressure, precision: 2 }
+
+heaters:
+  - { uri_key: STILL_H, label: "Still", quantity: power, precision: 2 }
+  - { uri_key: MC_H, label: "Mixing chamber", quantity: power, precision: 2 }
+
+flow:
+  - { uri_key: "3He_F", label: "³He", quantity: flow, precision: 2, from_base_scale: 1.0e+6 }
+
+resources:
+  - { label: "Control Panel", url: "http://elsa.mib.infn.it/" }
+  - { label: "Grafana", url: "http://elsa.mib.infn.it:3000/d/yxUNNPWgz/temperature-overview" }
+  - { label: "Logbook", url: "https://docs.google.com/spreadsheets/d/1GRVGGq3Nh9QnF2wynZf1tApzgfahYQwuC7tu1oaOyu8/edit?gid=0#gid=0" }
+  - { label: "Wiki", url: "https://holmes0.mib.infn.it/marewiki/!qtmibwiki/home" }

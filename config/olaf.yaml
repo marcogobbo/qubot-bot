@@ -1,6 +1,5 @@
 display_name: "OLAF"
 color: 0x5DADE2
-mixing_chamber_key: MC_T
 pt2_key: PT2_T1
 
 temperatures:

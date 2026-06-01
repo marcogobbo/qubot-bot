@@ -100,7 +100,7 @@ Example:
 ```yaml
 display_name: "Elsa"
 color: 0x5DADE2
-mixing_chamber_key: MC_T   # used by the "skip if 0" gate
+pt2_key: PT2_T1   # used by the warm-fridge skip gate (IDLE + PT2 > 273 K)
 
 temperatures:
   - { uri_key: MC_T,  label: "Mix Chamber", quantity: temperature, precision: 3 }
@@ -166,8 +166,8 @@ container (`docker compose restart qubot`) to apply.
 For each fridge at 09:30:
 
 1. Open WAMP session, fetch `get_recognized_states()` + every configured sensor.
-2. If any recognized state begins with `"Idle"` → **skip** (and log it).
-3. If the configured `mixing_chamber_key` reads `0` (or fails) → **skip**.
+2. If the fridge is in LOCAL mode (state stringifies to `None`) → **skip** (and log it).
+3. If the fridge is **Idle** *and* the configured `pt2_key` reads > 273 K (warm) → **skip**.
 4. Otherwise, build a personalized embed and post to the fridge's destination.
 
 `/report` runs the same pipeline but never skips — it always returns something.

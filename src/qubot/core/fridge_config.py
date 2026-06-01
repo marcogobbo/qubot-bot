@@ -52,8 +52,6 @@ class FridgeProfile(BaseModel):
     name: str  # canonical lowercase key (elsa/anna/olaf)
     display_name: str
     color: int = 0x3498DB
-    # Which configured temperature uri_key represents the mixing chamber.
-    mixing_chamber_key: str = "mixing_chamber"
     # Which configured temperature uri_key represents the Pulse-tube 2 stage.
     # Used by the scheduler's warm-fridge skip (IDLE + PT2 > 273 K).
     pt2_key: str = "PT2_T1"

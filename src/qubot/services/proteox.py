@@ -62,9 +62,6 @@ class Snapshot:
                 return r.value
         return None
 
-    def mixing_chamber_value(self, mixing_chamber_key: str) -> float | None:
-        return self.temperature_value(mixing_chamber_key)
-
     def sections(self) -> list[tuple[str, list[SensorReading]]]:
         """(label, readings) pairs in display order. Callers skip empty ones."""
         return [

@@ -30,7 +30,9 @@ def build_report_embed(profile: FridgeProfile, snap: Snapshot) -> discord.Embed:
 
     # Add resources if configured
     if profile.has_resources():
-        resources_text = "\n".join(f"- **[{link.label}]({link.url})**" for link in profile.resources)
+        resources_text = "\n".join(
+            f"- **[{link.label}]({link.url})**" for link in profile.resources
+        )
         embed.add_field(name="**RESOURCES**", value=resources_text, inline=False)
 
     return embed

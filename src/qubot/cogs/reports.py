@@ -28,8 +28,7 @@ class ReportsCog(commands.Cog):
         self.log = get_logger("cog.reports")
         # Reverse-lookup: which fridge owns a given channel/thread ID?
         self._fridge_by_channel: dict[int, str] = {
-            conn.destination_id: name
-            for name, conn in bot.settings.fridges.items()
+            conn.destination_id: name for name, conn in bot.settings.fridges.items()
         }
         self.log.info(
             "channel→fridge map: %s",
@@ -39,7 +38,9 @@ class ReportsCog(commands.Cog):
     @app_commands.command(name="report", description="Generate a fridge report for this channel.")
     async def report(self, interaction: discord.Interaction) -> None:
         channel_id = interaction.channel_id
-        name = self._fridge_by_channel.get(channel_id)
+        # channel_id is None in DMs; .get tolerates it and the None branch below
+        # handles unbound/DM channels identically.
+        name = self._fridge_by_channel.get(channel_id)  # type: ignore[arg-type]
         if name is None:
             self.log.info(
                 "/report ignored: channel %s not bound to a fridge (user=%s)",
@@ -62,9 +63,7 @@ class ReportsCog(commands.Cog):
         except RuntimeError as exc:
             # Timeout or connection error from ProteoxService
             self.log.error("service error for %s: %s", name, exc)
-            await interaction.followup.send(
-                f":warning: **{profile.display_name}** {exc}"
-            )
+            await interaction.followup.send(f":warning: **{profile.display_name}** {exc}")
             return
         except Exception as exc:  # noqa: BLE001
             self.log.exception("snapshot failed for %s", name)

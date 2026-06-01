@@ -73,7 +73,8 @@ class SchedulerCog(commands.Cog):
         if snap.is_idle and pt2 is not None and pt2 > 273:
             self.log.info(
                 "skip %s: warm (idle and PT2=%.2f K > 273 K)",
-                name, pt2,
+                name,
+                pt2,
             )
             return
 

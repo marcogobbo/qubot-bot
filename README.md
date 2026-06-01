@@ -7,9 +7,8 @@ dilution refrigerators — **Elsa**, **Anna**, and **Olaf**.
   thread where the command is invoked, by reverse-lookup of the
   `<FRIDGE>_DESTINATION_ID` values in `.env`. Invoking `/report` outside any
   configured channel is silently ignored (logged for audit).
-- **Daily 09:30** — automatic report per fridge, posted only when the fridge is
-  active (status not `Idle`) and the mixing-chamber temperature is in scale
-  (not exactly `0`).
+- **Daily 09:30** — automatic report per fridge, skipped only when the fridge is
+  in LOCAL mode, or when it is `Idle` **and** warm (Pulse-tube 2 above 273 K).
 - Units **auto-scale by magnitude**: 0.9 K → `900 mK`; 1.2 nW heater → `1.2 nW`;
   1500 Pa → `1.5 kPa`. Flow shown as μmol/s.
 - Sends to a **thread** or **channel** (per fridge, configured in `.env`).
@@ -125,7 +124,7 @@ resources:
 `uri_key` must match a key in the qtics `getters` dict (defined in
 `qtics/instruments/network/proteox/uris.py`). The bot calls `get_<uri_key>()`
 which is dynamically created by qtics's `__getattr__`. Valid keys include:
-`MC_T`, `STILL_T`, `CP_T`, `PT1_T`, `PT2_T`, `MAG_T`, `SRB_T`, `OVC_P`, 
+`MC_T`, `STILL_T`, `CP_T`, `PT1_T`, `PT2_T`, `MAG_T`, `SRB_T`, `OVC_P`,
 `P1_P`–`P6_P`, `MC_H`, `STILL_H`, `3He_F`, etc. Add/remove rows freely — the
 report adjusts automatically.
 
@@ -171,3 +170,34 @@ For each fridge at 09:30:
 4. Otherwise, build a personalized embed and post to the fridge's destination.
 
 `/report` runs the same pipeline but never skips — it always returns something.
+
+## Contributing
+
+`main` is protected: changes land only through a pull request that passes
+**review** and **CI**. Direct pushes to `main` are rejected.
+
+Workflow:
+
+1. Branch off `main`, make your change.
+2. Run the checks locally (see below) and push the branch.
+3. Open a PR into `main`. CI runs automatically.
+4. A PR can be merged once it has **1 approving review** and all checks are green
+   (`lint`, `test (3.11)`, `test (3.12)`).
+
+### Local checks
+
+```bash
+poetry install            # includes dev tools (black, ruff, mypy, pytest, pre-commit)
+poetry run pre-commit install   # one-time: run the hooks on every commit
+```
+
+The hooks (and CI's `lint` job) run **ruff** (lint), **black** (format), and
+**mypy** (types). Run them on demand with:
+
+```bash
+poetry run pre-commit run --all-files   # ruff + black + mypy + misc hooks
+poetry run pytest                       # the test suite
+```
+
+CI mirrors this exactly: a `lint` job (pre-commit) plus a `test` job across
+Python 3.11 and 3.12.

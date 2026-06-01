@@ -21,6 +21,9 @@ h5py = ">=3.10"
 pytest = "^8.2"
 pytest-asyncio = "^0.23"
 ruff = "^0.5"
+black = "^24.4"
+mypy = "^1.10"
+pre-commit = "^3.7"
 
 [tool.poetry.scripts]
 qubot = "qubot.main:run"
@@ -28,6 +31,21 @@ qubot = "qubot.main:run"
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src"]
+# The codebase was not previously type-checked and pulls in untyped third-party
+# packages (qtics, aiohttp internals). Stay pragmatic rather than --strict so a
+# flood of errors doesn't block every PR; tighten incrementally over time.
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

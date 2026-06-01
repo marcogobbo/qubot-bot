@@ -17,12 +17,11 @@ Quantity = str  # "temperature" | "pressure" | "power" | "magnetic_field" | "flo
 # Each list is sorted descending by factor. The final entry is the smallest
 # prefix and is used as a fallback for sub-prefix values and for "0 …".
 QUANTITIES: dict[Quantity, list[tuple[float, str]]] = {
-    "temperature":    [(1.0,  "K"),   (1e-3, "mK")],
-    "pressure":       [(1e3,  "kPa"), (1.0,  "Pa")],
-    "power":          [(1.0,  "W"),   (1e-3, "mW"),  (1e-6, "μW"),
-                       (1e-9, "nW"),  (1e-12, "pW")],
-    "magnetic_field": [(1.0,  "T"),   (1e-3, "mT")],
-    "flow":           [(1.0,  "μmol/s")],
+    "temperature": [(1.0, "K"), (1e-3, "mK")],
+    "pressure": [(1e3, "kPa"), (1.0, "Pa")],
+    "power": [(1.0, "W"), (1e-3, "mW"), (1e-6, "μW"), (1e-9, "nW"), (1e-12, "pW")],
+    "magnetic_field": [(1.0, "T"), (1e-3, "mT")],
+    "flow": [(1.0, "μmol/s")],
 }
 
 

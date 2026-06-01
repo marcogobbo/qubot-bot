@@ -29,9 +29,7 @@ class UtaCog(commands.Cog):
 
     @app_commands.command(name="uta", description="Show UTA (HVAC) status report.")
     async def uta(self, interaction: discord.Interaction) -> None:
-        self.log.info(
-            "/uta invoked by %s in channel=%s", interaction.user, interaction.channel_id
-        )
+        self.log.info("/uta invoked by %s in channel=%s", interaction.user, interaction.channel_id)
         await interaction.response.defer(thinking=True)
         try:
             snap = await fetch_uta_snapshot(self.bot.settings)

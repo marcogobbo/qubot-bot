@@ -6,8 +6,8 @@ import discord
 
 from qubot.services.uta import UtaSnapshot
 
-COLOR_OK = 0x2ECC71       # green — plant running, no alarms
-COLOR_ALARM = 0xE74C3C    # red — any active alarm
+COLOR_OK = 0x2ECC71  # green — plant running, no alarms
+COLOR_ALARM = 0xE74C3C  # red — any active alarm
 COLOR_NEUTRAL = 0x95A5A6  # grey — stopped without alarms
 
 
@@ -52,35 +52,40 @@ def _temperatures_section(snap: UtaSnapshot) -> str:
         setpoint, season_label = snap.sp_winter, "winter"
     else:
         setpoint, season_label = snap.sp_summer, "summer"
-    return "\n".join([
-        f"- **Lab**: {_f(snap.t_lab)} °C (SP {season_label}: {_f(setpoint)} °C)",
-        f"- **Pumps room**: {_f(snap.t_pumps_room)} °C",
-        f"- **External**: {_f(snap.t_external)} °C",
-        f"- **Cold water**: {_f(snap.t_water_cold)} °C",
-        f"- **Hot water**: {_f(snap.t_water_hot)} °C",
-        f"- **Pre-heat coil**: {_f(snap.t_preheat)} °C "
-        f"(SP {_f(snap.sp_preheat)} °C, valve {_f(snap.valve_preheat, 1)} %)",
-        f"- **Cooling coil**: {_f(snap.t_cool)} °C "
-        f"(valve {_f(snap.valve_cool, 1)} %)",
-        f"- **Supply duct**: {_f(snap.t_supply)} °C "
-        f"(SP {_f(snap.sp_supply)} °C, valve {_f(snap.valve_supply, 1)} %)",
-    ])
+    return "\n".join(
+        [
+            f"- **Lab**: {_f(snap.t_lab)} °C (SP {season_label}: {_f(setpoint)} °C)",
+            f"- **Pumps room**: {_f(snap.t_pumps_room)} °C",
+            f"- **External**: {_f(snap.t_external)} °C",
+            f"- **Cold water**: {_f(snap.t_water_cold)} °C",
+            f"- **Hot water**: {_f(snap.t_water_hot)} °C",
+            f"- **Pre-heat coil**: {_f(snap.t_preheat)} °C "
+            f"(SP {_f(snap.sp_preheat)} °C, valve {_f(snap.valve_preheat, 1)} %)",
+            f"- **Cooling coil**: {_f(snap.t_cool)} °C " f"(valve {_f(snap.valve_cool, 1)} %)",
+            f"- **Supply duct**: {_f(snap.t_supply)} °C "
+            f"(SP {_f(snap.sp_supply)} °C, valve {_f(snap.valve_supply, 1)} %)",
+        ]
+    )
 
 
 def _flow_section(snap: UtaSnapshot) -> str:
-    return "\n".join([
-        f"- **Supply flow**: {_f(snap.flow_supply, 1)} m³/h",
-        f"- **Return flow**: {_f(snap.flow_return, 1)} m³/h",
-        f"- **Pocket filter ΔP**: {_f(snap.dp_pocket)} Pa",
-        f"- **Absolute filter ΔP**: {_f(snap.dp_absolute)} Pa",
-    ])
+    return "\n".join(
+        [
+            f"- **Supply flow**: {_f(snap.flow_supply, 1)} m³/h",
+            f"- **Return flow**: {_f(snap.flow_return, 1)} m³/h",
+            f"- **Pocket filter ΔP**: {_f(snap.dp_pocket)} Pa",
+            f"- **Absolute filter ΔP**: {_f(snap.dp_absolute)} Pa",
+        ]
+    )
 
 
 def _air_quality_section(snap: UtaSnapshot) -> str:
-    return "\n".join([
-        f"- **Humidity**: {_f(snap.humidity, 1)} %",
-        f"- **CO₂**: {_f(snap.co2, 1)} ppm",
-    ])
+    return "\n".join(
+        [
+            f"- **Humidity**: {_f(snap.humidity, 1)} %",
+            f"- **CO₂**: {_f(snap.co2, 1)} ppm",
+        ]
+    )
 
 
 def _chiller_section(snap: UtaSnapshot) -> str:

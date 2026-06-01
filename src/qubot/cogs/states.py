@@ -30,14 +30,15 @@ class StatesCog(commands.Cog):
         self.bot = bot
         self.log = get_logger("cog.states")
         self._fridge_by_channel: dict[int, str] = {
-            conn.destination_id: name
-            for name, conn in bot.settings.fridges.items()
+            conn.destination_id: name for name, conn in bot.settings.fridges.items()
         }
 
     async def _silently_ignore(self, interaction: discord.Interaction, cmd: str) -> None:
         self.log.info(
             "/%s ignored: channel %s not bound to a fridge (user=%s)",
-            cmd, interaction.channel_id, interaction.user,
+            cmd,
+            interaction.channel_id,
+            interaction.user,
         )
         await interaction.response.defer(ephemeral=True)
 
@@ -46,7 +47,9 @@ class StatesCog(commands.Cog):
         description="List recognized cryostat states for this channel's fridge.",
     )
     async def recognizedstates(self, interaction: discord.Interaction) -> None:
-        name = self._fridge_by_channel.get(interaction.channel_id)
+        # channel_id is None in DMs; .get tolerates it and the None branch below
+        # handles unbound/DM channels identically.
+        name = self._fridge_by_channel.get(interaction.channel_id)  # type: ignore[arg-type]
         if name is None:
             await self._silently_ignore(interaction, "recognizedstates")
             return
@@ -60,7 +63,9 @@ class StatesCog(commands.Cog):
         description="Check whether the cryostat is in a recognized state.",
     )
     async def recognized(self, interaction: discord.Interaction) -> None:
-        name = self._fridge_by_channel.get(interaction.channel_id)
+        # channel_id is None in DMs; .get tolerates it and the None branch below
+        # handles unbound/DM channels identically.
+        name = self._fridge_by_channel.get(interaction.channel_id)  # type: ignore[arg-type]
         if name is None:
             await self._silently_ignore(interaction, "recognized")
             return
@@ -75,9 +80,7 @@ class StatesCog(commands.Cog):
                 result = await svc.recognized_status()
         except RuntimeError as exc:
             self.log.error("service error for %s: %s", name, exc)
-            await interaction.followup.send(
-                f":warning: **{profile.display_name}** {exc}"
-            )
+            await interaction.followup.send(f":warning: **{profile.display_name}** {exc}")
             return
         except Exception as exc:  # noqa: BLE001
             self.log.exception("recognized check failed for %s", name)
@@ -111,14 +114,18 @@ class StatesCog(commands.Cog):
         interaction: discord.Interaction,
         target_state: str | None = None,
     ) -> None:
-        name = self._fridge_by_channel.get(interaction.channel_id)
+        # channel_id is None in DMs; .get tolerates it and the None branch below
+        # handles unbound/DM channels identically.
+        name = self._fridge_by_channel.get(interaction.channel_id)  # type: ignore[arg-type]
         if name is None:
             await self._silently_ignore(interaction, "howto")
             return
 
         self.log.info(
             "/howto invoked by %s for fridge=%s target=%r",
-            interaction.user, name, target_state,
+            interaction.user,
+            name,
+            target_state,
         )
         await interaction.response.defer(thinking=True)
 
@@ -129,9 +136,7 @@ class StatesCog(commands.Cog):
                 plan = await svc.transition_plan(target_state)
         except RuntimeError as exc:
             self.log.error("service error for %s: %s", name, exc)
-            await interaction.followup.send(
-                f":warning: **{profile.display_name}** {exc}"
-            )
+            await interaction.followup.send(f":warning: **{profile.display_name}** {exc}")
             return
         except Exception as exc:  # noqa: BLE001
             self.log.exception("transition plan failed for %s", name)

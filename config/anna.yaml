@@ -26,4 +26,3 @@ resources:
   - { label: "Grafana", url: "http://anna.mib.infn.it:3000/d/2RmbBORRz/temperature-overview" }
   - { label: "Logbook", url: "https://docs.google.com/spreadsheets/d/1GRVGGq3Nh9QnF2wynZf1tApzgfahYQwuC7tu1oaOyu8/edit?gid=0#gid=0" }
   - { label: "Wiki", url: "https://holmes0.mib.infn.it/marewiki/!qtmibwiki/home" }
-

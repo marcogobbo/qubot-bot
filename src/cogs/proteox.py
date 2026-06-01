@@ -4,7 +4,7 @@ from os import getenv
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord import ButtonStyle, Embed, Interaction, Thread
-from discord.ext.commands import Bot, Cog, command
+from discord.ext.commands import Bot, Cog, DefaultHelpCommand, command
 from discord.ui import Button, View
 from dotenv import load_dotenv
 from qtics import Proteox
@@ -81,13 +81,13 @@ class ProteoxCog(Cog):
             self.send_report,
             proteox_config.report.to_cron_trigger(),
             id="send_report",
-            max_instances=2
+            max_instances=2,
         )
         self.scheduler.add_job(
             self.send_ln_refill,
             proteox_config.ln_refill.to_cron_trigger(),
             id="send_ln_refill",
-            max_instances=2
+            max_instances=2,
         )
         self.scheduler.start()
 
@@ -95,7 +95,11 @@ class ProteoxCog(Cog):
     async def report(self, ctx):
         await self.bot.wait_until_ready()
 
-        if ctx.channel.id not in (DR["elsa"]["thread_id"], DR["anna"]["thread_id"], DR["olaf"]["thread_id"]):
+        if ctx.channel.id not in (
+            DR["elsa"]["thread_id"],
+            DR["anna"]["thread_id"],
+            DR["olaf"]["thread_id"],
+        ):
             logging.warning("Report command was executed in the wrong channel.")
             return
 
@@ -106,6 +110,11 @@ class ProteoxCog(Cog):
             dr = "olaf"
 
         state, data = await self.get_data(dr)
+        if state is None or "None" in state:
+            logging.info(f"{dr.title()} is in LOCAL mode.")
+            await thread.send("Cryostat is in LOCAL mode.")
+            return
+
         embed = self.build_embed(dr, state, data)
 
         await thread.send(embed=embed)
@@ -119,7 +128,11 @@ class ProteoxCog(Cog):
 
             if state == "IDLE":
                 logging.info(f"{dr.title()} is in the Idle state.")
-                continue
+                return
+            if state is None or "None" in state:
+                logging.info(f"{dr.title()} is in LOCAL mode.")
+                await thread.send("Cryostat is in LOCAL mode.")
+                return
 
             embed = self.build_embed(dr, state, data)
 
@@ -131,7 +144,7 @@ class ProteoxCog(Cog):
             thread = await self.fetch_thread(DR[dr]["thread_id"])
             state, _ = await self.get_data(dr)
 
-            if state == "IDLE":
+            if state in ("IDLE", "WARMPING UP"):
                 logging.info(f"{dr.title()} is in the Idle state.")
                 break
 
@@ -149,7 +162,7 @@ class ProteoxCog(Cog):
     async def get_data(self, dr):
 
         instrument = Proteox(url=DR[dr]["wamp_url"])
-
+        immediate_return = False
         try:
             await instrument.connect()
         except ConnectionError as e:
@@ -310,6 +323,271 @@ class ProteoxCog(Cog):
         logging.info("Thread ID %s joined.", thread.id)
 
         return thread
+
+    @command(name="recognizedstates")
+    async def recognizedstates(self, ctx):
+        """
+        List all available recognized state names.
+        """
+        await self.bot.wait_until_ready()
+
+        dr = self.get_dr_from_context(ctx)
+        if dr is None:
+            logging.warning(
+                "Recognizedstates command was executed in the wrong channel."
+            )
+            return
+
+        try:
+            from qtics.instruments.network.proteox.recognized_states import (
+                RECOGNIZED_STATES,
+            )
+
+            state_names = sorted(RECOGNIZED_STATES.keys())
+
+            message = "📚 **Available recognized states**\n" + "\n".join(
+                f"- {name}" for name in state_names
+            )
+
+            await ctx.send(message)
+            logging.info("Sent recognized-state list for %s.", dr)
+
+        except Exception as e:
+            msg = f"Failed to list recognized states for {dr.title()}: {type(e).__name__}: {e}"
+            await ctx.send(f"❌ {msg}")
+            logging.error(msg)
+
+    @command(name="howto")
+    async def howto(self, ctx, *, target_state: str = None):
+        """
+        Suggest how to reach a recognized state.
+
+        Usage:
+          !howto
+          !howto Circulating
+          !howto "Circulating Compressor Bypassed"
+        """
+        await self.bot.wait_until_ready()
+
+        dr = self.get_dr_from_context(ctx)
+        if dr is None:
+            logging.warning("Howto command was executed in the wrong channel.")
+            return
+
+        instrument = None
+        try:
+            instrument = await self.get_instrument(dr)
+
+            plan = await instrument.recognized_states.get_transition_plan(target_state)
+            message = self.build_transition_plan_message(dr, plan)
+
+            await ctx.send(message)
+
+            if target_state is None:
+                logging.info(
+                    "Sent closest recognized-state transition plan for %s.", dr
+                )
+            else:
+                logging.info(
+                    "Sent transition plan for %s toward target state '%s'.",
+                    dr,
+                    target_state,
+                )
+
+        except ValueError as e:
+            await ctx.send(f"❌ {e}")
+            logging.warning(
+                "Invalid recognized-state target requested for %s: %s", dr, e
+            )
+
+        except Exception as e:
+            msg = f"Failed to compute transition plan for {dr.title()}: {type(e).__name__}: {e}"
+            await ctx.send(f"❌ {msg}")
+            logging.error(msg)
+
+        finally:
+            if instrument is not None:
+                await instrument.close()
+
+    @command(name="recognized")
+    async def recognized(self, ctx):
+        """
+        Report whether the cryostat is currently in a recognized state.
+        """
+        await self.bot.wait_until_ready()
+
+        dr = self.get_dr_from_context(ctx)
+        if dr is None:
+            logging.warning("Recognized command was executed in the wrong channel.")
+            return
+
+        instrument = None
+        try:
+            instrument = await self.get_instrument(dr)
+
+            is_recognized = await instrument.is_in_recognized_state()
+            states = await instrument.get_recognized_states()
+
+            message = self.build_recognized_state_message(dr, is_recognized, states)
+            await ctx.send(message)
+
+            logging.info("Sent recognized-state status for %s.", dr)
+
+        except Exception as e:
+            msg = f"Failed to query recognized state for {dr.title()}: {type(e).__name__}: {e}"
+            await ctx.send(f"❌ {msg}")
+            logging.error(msg)
+
+        finally:
+            if instrument is not None:
+                await instrument.close()
+
+    def get_dr_from_context(self, ctx) -> str | None:
+        """
+        Infer the dilution refrigerator name from the current Discord context.
+        Returns one of: 'elsa', 'anna', 'olaf', or None if invalid.
+        """
+        if ctx.channel.id not in (
+            DR["elsa"]["thread_id"],
+            DR["anna"]["thread_id"],
+            DR["olaf"]["thread_id"],
+        ):
+            return None
+
+        dr = ctx.channel.parent.name
+        if dr == "data-taking":
+            dr = "olaf"
+
+        if dr not in DR:
+            return None
+
+        return dr
+
+    async def get_instrument(self, dr: str) -> Proteox:
+        """
+        Create and connect a Proteox instrument for the selected DR.
+        """
+        instrument = Proteox(url=DR[dr]["wamp_url"])
+        await instrument.connect()
+        return instrument
+
+    def build_recognized_state_message(
+        self,
+        dr: str,
+        is_recognized: bool,
+        states: list[str],
+    ) -> str:
+        """
+        Build a Discord-friendly message for recognized-state status.
+        """
+        if is_recognized and states:
+            if len(states) == 1:
+                return (
+                    f"✅ **{dr.title()}** is currently in a recognized state:\n"
+                    f"**{states[0]}**"
+                )
+
+            return (
+                f"⚠️ **{dr.title()}** matches multiple recognized states:\n"
+                + "\n".join(f"- {s}" for s in states)
+            )
+
+        return f"❌ **{dr.title()}** is **not** currently in a recognized state."
+
+    def build_transition_plan_message(self, dr: str, plan: dict) -> str:
+        """
+        Build a Discord-friendly message from a recognized-state transition plan.
+        """
+        target_state = plan.get("target_state")
+        matched = plan.get("matched", False)
+        mismatch_count = plan.get("mismatch_count")
+        actions = plan.get("actions", [])
+
+        if target_state is None:
+            return f"❌ Could not determine a target recognized state for **{dr.title()}**."
+
+        if matched:
+            return (
+                f"✅ **{dr.title()}** is already in the recognized state:\n"
+                f"**{target_state}**"
+            )
+
+        lines = [
+            f"🛠️ **{dr.title()}** transition suggestion",
+            f"**Target state:** {target_state}",
+            f"**Total mismatches:** {mismatch_count}",
+            "",
+        ]
+
+        if not actions:
+            lines.append("No actions available.")
+            return "\n".join(lines)
+
+        lines.append("**Suggested actions:**")
+        for action in actions:
+            label = action.get("label", action.get("condition", "Unknown condition"))
+            suggestion = action.get("suggestion", "No suggestion available.")
+            target_value = action.get("target_value")
+
+            if target_value is True:
+                prefix = "🟢"
+            else:
+                prefix = "🔴"
+
+            lines.append(f"{prefix} **{label}** → {suggestion}")
+
+        return "\n".join(lines)
+
+    @command(name="help")
+    async def help_command(self, ctx):
+        """
+        Show available Proteox bot commands.
+        """
+        await self.bot.wait_until_ready()
+
+        embed = Embed(
+            title="🤖 **Proteox Bot Commands**",
+            description="Available commands for cryostat monitoring and state diagnostics.",
+            color=COLOR_BLUE,
+        )
+
+        embed.add_field(
+            name="**Monitoring**",
+            value=(
+                "`/report`\n"
+                "Send a full cryostat report in the current status thread.\n\n"
+                "`/recognized`\n"
+                "Check whether the cryostat is currently in a recognized state.\n\n"
+                "`/recognizedstates`\n"
+                "List all available recognized states."
+            ),
+            inline=False,
+        )
+
+        embed.add_field(
+            name="**State guidance**",
+            value=(
+                "`/howto`\n"
+                "Suggest how to reach the closest recognized state.\n\n"
+                "`/howto <state name>`\n"
+                "Suggest how to reach a specific recognized state.\n"
+                "Example: `/howto Circulating`\n"
+                "Example: `/howto Circulating Compressor Bypassed`"
+            ),
+            inline=False,
+        )
+
+        embed.add_field(
+            name="**Notes**",
+            value=(
+                "- These commands should be used in the Proteox status threads.\n"
+                "- Recognized-state commands use the cryostat truth-table logic from the driver."
+            ),
+            inline=False,
+        )
+
+        await ctx.send(embed=embed)
+        logging.info("Sent Proteox help command list.")
 
 
 class RefillButton(View):

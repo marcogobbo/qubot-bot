@@ -34,7 +34,9 @@ def _build_help_embed() -> discord.Embed:
     embed.add_field(
         name="**Everywhere**",
         value=(
-            "`/uta` — HVAC plant (UTA) status report.\n"
+            "`/uta report` — HVAC plant (UTA) status report.\n"
+            "`/uta monitor on|off` — toggle the hourly UTA watchdog "
+            "(posts warnings to Elsa's thread; runs until turned off).\n"
             "`/help` — this message."
         ),
         inline=False,

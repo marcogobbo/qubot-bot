@@ -35,3 +35,12 @@ async def send_embed(
     target = await resolve(bot, conn)
     await target.send(embed=embed)
     _log.info("sent embed to %s id=%s", conn.destination_type, conn.destination_id)
+
+
+async def send_text(
+    bot: discord.Client, conn: FridgeConnection, content: str
+) -> None:
+    """Send a plain text message to the configured destination."""
+    target = await resolve(bot, conn)
+    await target.send(content)
+    _log.info("sent text to %s id=%s", conn.destination_type, conn.destination_id)

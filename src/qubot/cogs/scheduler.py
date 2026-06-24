@@ -60,6 +60,16 @@ class SchedulerCog(commands.Cog):
         try:
             async with ProteoxService(conn, profile) as svc:
                 snap = await svc.snapshot()
+        except RuntimeError as exc:
+            # Timeout / connection error — give users the same feedback as /report.
+            self.log.error("service error for %s: %s — posting network warning", name, exc)
+            try:
+                await destinations.send_text(
+                    self.bot, conn, f":warning: **{profile.display_name}** {exc}"
+                )
+            except Exception:  # noqa: BLE001
+                self.log.exception("failed to send network warning for %s", name)
+            return
         except Exception:  # noqa: BLE001
             self.log.exception("snapshot failed for %s — skipping post", name)
             return

@@ -66,6 +66,12 @@ class Settings(BaseSettings):
     uta_cgi_url: str = ""
     uta_cgi_timeout: float = 10.0
 
+    # UTA hourly monitor (`/uta monitor on`) thresholds. A warning is posted to
+    # Elsa's daily-report destination when the chiller water temperature is at or
+    # above the max, or the absolute filter ΔP is at or below the min.
+    uta_monitor_chiller_temp_max: float = 16.0  # °C — warn if at/above
+    uta_monitor_abs_filter_min: float = 60.0  # Pa — warn if at/below
+
     fridges: dict[str, FridgeConnection] = Field(default_factory=dict)
 
     @classmethod

@@ -13,9 +13,7 @@ COLOR_WARN = 0xF1C40F
 COLOR_FAIL = 0xE74C3C
 
 
-def build_recognized_states_embed(
-    profile: FridgeProfile, names: list[str]
-) -> discord.Embed:
+def build_recognized_states_embed(profile: FridgeProfile, names: list[str]) -> discord.Embed:
     """Static list of every recognized state in the Proteox truth table."""
     embed = discord.Embed(
         title=f"📚 **Recognized states — {profile.display_name}**",
@@ -88,9 +86,7 @@ def build_transition_plan_embed(
         title=f"🛠️ **{profile.display_name}** — Transition suggestion",
         color=profile.color,
     )
-    header = (
-        "**Closest target state**" if requested_target is None else "**Target state**"
-    )
+    header = "**Closest target state**" if requested_target is None else "**Target state**"
     embed.add_field(name=header, value=target_state, inline=True)
     if mismatch_count is not None:
         embed.add_field(name="**Mismatches**", value=str(mismatch_count), inline=True)

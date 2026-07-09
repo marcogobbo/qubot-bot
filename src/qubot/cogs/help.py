@@ -33,10 +33,7 @@ def _build_help_embed() -> discord.Embed:
     )
     embed.add_field(
         name="**Everywhere**",
-        value=(
-            "`/uta` — HVAC plant (UTA) status report.\n"
-            "`/help` — this message."
-        ),
+        value=("`/uta` — HVAC plant (UTA) status report.\n" "`/help` — this message."),
         inline=False,
     )
     embed.add_field(
@@ -57,9 +54,7 @@ class HelpCog(commands.Cog):
 
     @app_commands.command(name="help", description="Show available QuBot commands.")
     async def help_cmd(self, interaction: discord.Interaction) -> None:
-        self.log.info(
-            "/help invoked by %s in channel=%s", interaction.user, interaction.channel_id
-        )
+        self.log.info("/help invoked by %s in channel=%s", interaction.user, interaction.channel_id)
         await interaction.response.defer(thinking=True)
         await interaction.followup.send(embed=_build_help_embed())
 

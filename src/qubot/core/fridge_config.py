@@ -67,9 +67,9 @@ class FridgeProfile(BaseModel):
         so callers can decide whether to render them."""
         return [
             ("Temperatures", self.temperatures),
-            ("Pressures",    self.pressures),
-            ("Heaters",      self.heaters),
-            ("Flow",         self.flow),
+            ("Pressures", self.pressures),
+            ("Heaters", self.heaters),
+            ("Flow", self.flow),
         ]
 
     def has_resources(self) -> bool:

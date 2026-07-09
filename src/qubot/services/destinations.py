@@ -28,9 +28,7 @@ async def resolve(bot: discord.Client, conn: FridgeConnection) -> discord.abc.Me
     return thread
 
 
-async def send_embed(
-    bot: discord.Client, conn: FridgeConnection, embed: discord.Embed
-) -> None:
+async def send_embed(bot: discord.Client, conn: FridgeConnection, embed: discord.Embed) -> None:
     """Send an embed to the configured destination."""
     target = await resolve(bot, conn)
     await target.send(embed=embed)

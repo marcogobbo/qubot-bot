@@ -5,7 +5,7 @@ from __future__ import annotations
 # Load .env into os.environ FIRST, so the qtics module (which reads
 # WAMP_USER / WAMP_USER_SECRET / WAMP_REALM / WAMP_ROUTER_URL at import time
 # via os.getenv) sees them before any cog imports it transitively.
-from dotenv import load_dotenv  # type: ignore[import-not-found]
+from dotenv import load_dotenv
 
 load_dotenv()
 

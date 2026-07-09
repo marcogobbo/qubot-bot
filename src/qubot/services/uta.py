@@ -86,30 +86,35 @@ class UtaSnapshot:
     @property
     def any_alarm(self) -> bool:
         return bool(
-            self.termalarm or self.notifier or self.incendio
-            or self.alinverterin or self.alinverterout or self.generalarm
+            self.termalarm
+            or self.notifier
+            or self.incendio
+            or self.alinverterin
+            or self.alinverterout
+            or self.generalarm
         )
 
     @property
     def any_alarm_chiller(self) -> bool:
         return bool(
-            self.frigoalarm or self.frigotermico
-            or self.valvemerginacquedotto or self.valvemergout
+            self.frigoalarm
+            or self.frigotermico
+            or self.valvemerginacquedotto
+            or self.valvemergout
             or self.pompaalarm
         )
 
     @property
     def is_running(self) -> bool:
-        return bool(
-            self.marcia and self.inverterin and self.inverterout
-            and not self.any_alarm
-        )
+        return bool(self.marcia and self.inverterin and self.inverterout and not self.any_alarm)
 
     @property
     def chiller_running(self) -> bool:
         return bool(
-            self.frigoon and not self.valvemerginacquedotto
-            and not self.valvemergout and not self.any_alarm_chiller
+            self.frigoon
+            and not self.valvemerginacquedotto
+            and not self.valvemergout
+            and not self.any_alarm_chiller
         )
 
 
@@ -230,23 +235,45 @@ def parse_uta_html(html_text: str, tz: ZoneInfo) -> UtaSnapshot:
 
     return UtaSnapshot(
         timestamp=ts,
-        t_lab=t_lab, t_pumps_room=t_pumps_room, t_external=t_external,
-        t_water_cold=t_water_cold, t_water_hot=t_water_hot,
+        t_lab=t_lab,
+        t_pumps_room=t_pumps_room,
+        t_external=t_external,
+        t_water_cold=t_water_cold,
+        t_water_hot=t_water_hot,
         t_water_chiller=t_water_chiller,
-        t_preheat=t_preheat, sp_preheat=sp_preheat, valve_preheat=valve_preheat,
-        t_cool=t_cool, valve_cool=valve_cool,
-        t_supply=t_supply, sp_supply=sp_supply, valve_supply=valve_supply,
-        sp_summer=sp_summer, sp_winter=sp_winter,
-        flow_supply=flow_supply, flow_return=flow_return,
-        dp_pocket=dp_pocket, dp_absolute=dp_absolute,
-        humidity=humidity, co2=co2,
+        t_preheat=t_preheat,
+        sp_preheat=sp_preheat,
+        valve_preheat=valve_preheat,
+        t_cool=t_cool,
+        valve_cool=valve_cool,
+        t_supply=t_supply,
+        sp_supply=sp_supply,
+        valve_supply=valve_supply,
+        sp_summer=sp_summer,
+        sp_winter=sp_winter,
+        flow_supply=flow_supply,
+        flow_return=flow_return,
+        dp_pocket=dp_pocket,
+        dp_absolute=dp_absolute,
+        humidity=humidity,
+        co2=co2,
         stagione=season,
-        marcia=marcia, iauto=iauto, ausiliari=ausiliari,
-        inverterin=inverterin, inverterout=inverterout, fancoil=fancoil,
-        termalarm=termalarm, notifier=notifier, incendio=incendio,
-        alinverterin=alinverterin, alinverterout=alinverterout,
-        frigoon=frigoon, frigoalarm=frigoalarm, frigotermico=frigotermico,
-        valvemergout=valvemergout, valvemerginacquedotto=valvemerginacquedotto,
+        marcia=marcia,
+        iauto=iauto,
+        ausiliari=ausiliari,
+        inverterin=inverterin,
+        inverterout=inverterout,
+        fancoil=fancoil,
+        termalarm=termalarm,
+        notifier=notifier,
+        incendio=incendio,
+        alinverterin=alinverterin,
+        alinverterout=alinverterout,
+        frigoon=frigoon,
+        frigoalarm=frigoalarm,
+        frigotermico=frigotermico,
+        valvemergout=valvemergout,
+        valvemerginacquedotto=valvemerginacquedotto,
         pompaalarm=pompaalarm,
     )
 
@@ -272,6 +299,9 @@ async def fetch_uta_snapshot(settings: "Settings") -> UtaSnapshot:
     snap = parse_uta_html(html_text, ZoneInfo(settings.daily_report_tz))
     log.info(
         "snapshot ok: marcia=%s any_alarm=%s frigoon=%s any_alarm_chiller=%s",
-        snap.marcia, snap.any_alarm, snap.frigoon, snap.any_alarm_chiller,
+        snap.marcia,
+        snap.any_alarm,
+        snap.frigoon,
+        snap.any_alarm_chiller,
     )
     return snap

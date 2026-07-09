@@ -10,7 +10,7 @@ import asyncio
 from dataclasses import dataclass, field
 from typing import Any
 
-from qtics.instruments.network.proteox.proteox import Proteox  # type: ignore[import-not-found]
+from qtics.instruments.network.proteox.proteox import Proteox
 
 from qubot.core.fridge_config import FridgeProfile, SensorSpec
 from qubot.core.logging_setup import get_logger
@@ -66,9 +66,9 @@ class Snapshot:
         """(label, readings) pairs in display order. Callers skip empty ones."""
         return [
             ("Temperatures", self.temperatures),
-            ("Pressures",    self.pressures),
-            ("Heaters",      self.heaters),
-            ("Flow",         self.flow),
+            ("Pressures", self.pressures),
+            ("Heaters", self.heaters),
+            ("Flow", self.flow),
         ]
 
 
@@ -99,16 +99,12 @@ class ProteoxService:
             await asyncio.wait_for(self._client.connect(), timeout=self._CONNECT_TIMEOUT_S)
         except asyncio.TimeoutError:
             self._log.error("connection timeout to %s", self._conn.proteox_url)
-            raise RuntimeError(
-                "is not responding. Please check the network."
-            ) from None
+            raise RuntimeError("is not responding. Please check the network.") from None
         except Exception as exc:  # noqa: BLE001
             exc_str = str(exc).lower()
             if any(kw in exc_str for kw in ["timeout", "handshake", "refused", "unreachable"]):
                 self._log.error("connection error to %s: %s", self._conn.proteox_url, exc)
-                raise RuntimeError(
-                    "is not responding. Please check the network."
-                ) from None
+                raise RuntimeError("is not responding. Please check the network.") from None
             raise
         return self
 
@@ -135,6 +131,7 @@ class ProteoxService:
         return [await self._read(s) for s in specs]
 
     async def _is_local(self) -> bool:
+        assert self._client is not None
         state = await self._client.get_state()
         return state is None or "None" in str(state)
 

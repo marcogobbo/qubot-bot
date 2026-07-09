@@ -76,7 +76,10 @@ class Settings(BaseSettings):
         so the bot can start with only a subset configured.
         """
         import logging
-        base = cls()
+
+        # Required fields (discord_token, wamp_user, ...) are populated from the
+        # environment by pydantic-settings, which mypy cannot infer statically.
+        base = cls()  # type: ignore[call-arg]
         for name in FRIDGE_NAMES:
             try:
                 base.fridges[name] = FridgeConnection(_env_prefix=f"{name.upper()}_")  # type: ignore[call-arg]
@@ -85,5 +88,7 @@ class Settings(BaseSettings):
                     "skipping fridge %s — incomplete config: %s", name, exc
                 )
         if not base.fridges:
-            raise RuntimeError("No fridges configured — set at least one <FRIDGE>_PROTEOX_URL and <FRIDGE>_DESTINATION_ID in .env")
+            raise RuntimeError(
+                "No fridges configured — set at least one <FRIDGE>_PROTEOX_URL and <FRIDGE>_DESTINATION_ID in .env"
+            )
         return base
